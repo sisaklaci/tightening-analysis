@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+.databricks/
+.vscode/settings.json
+*.egg-info/
+.DS_Store
