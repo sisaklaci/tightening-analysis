@@ -56,9 +56,15 @@ VS Code (edit) → GitHub (version) → Databricks Git Folder (run)
 ## Deploy the scheduled job
 
 The job itself is defined as code in [databricks.yml](databricks.yml) (`resources.jobs.tightening_analysis_job`) —
-runs daily at 06:00 Europe/Budapest on a dedicated job cluster (GPU ML runtime, 1x NVIDIA T4,
-auto-terminates after each run), pulling `tightening_analysis.py` straight from the `master`
-branch on GitHub.
+runs daily at 06:00 Europe/Budapest on a dedicated job cluster, pulling `tightening_analysis.py`
+straight from the `master` branch on GitHub.
+
+Compute is currently pinned to the admin-approved **"Datalab 02 All Purpose Multi Nodes"**
+cluster policy (`policy_id: 0018A91AD9ED973F`, `Standard_D4ds_v5`, autoscaling 1-5 workers,
+CPU only) — the workspace does not allow unrestricted cluster creation, and no GPU policy has
+been approved yet. Since the current script doesn't use a GPU, this is a safe interim setup;
+once an approved GPU cluster policy is confirmed, swap `policy_id`/`node_type_id` in
+`databricks.yml` for it.
 
 To create/update it in the workspace:
 

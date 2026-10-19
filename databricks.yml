@@ -33,12 +33,15 @@ resources:
       job_clusters:
         - job_cluster_key: analysis_cluster
           new_cluster:
-            # GPU ML runtime: CUDA/cuDNN + PyTorch/TensorFlow preinstalled, for deep learning.
-            # Standard_NC4as_T4_v3 = 1x NVIDIA T4 GPU (Azure). Bump to NC8as_T4_v3 / NC6s_v3
-            # etc. if more GPU memory or throughput is needed.
-            spark_version: 15.4.x-gpu-ml-scala2.12
-            node_type_id: Standard_NC4as_T4_v3
-            num_workers: 1
+            # Interim CPU setup: the account running this job isn't authorized to create
+            # unrestricted clusters, so this uses the admin-approved "Datalab 02 All Purpose
+            # Multi Nodes" cluster policy instead. Current code doesn't need a GPU yet; once
+            # the admin confirms an approved GPU policy, swap policy_id/node_type_id for it.
+            policy_id: "0018A91AD9ED973F"
+            node_type_id: Standard_D4ds_v5
+            autoscale:
+              min_workers: 1
+              max_workers: 5
 
       tasks:
         - task_key: run_analysis
