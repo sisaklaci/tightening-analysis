@@ -58,6 +58,12 @@ resources:
       tasks:
         - task_key: run_analysis
           job_cluster_key: gpu_cluster
+          # North Europe has recurring T4 GPU capacity shortages (CLOUD_PROVIDER_RESOURCE_
+          # STOCKOUT / ZonalAllocationFailed) that are unrelated to quota/permissions and
+          # fluctuate through the day - admin-recommended mitigation is to retry.
+          max_retries: 6
+          min_retry_interval_millis: 900000
+          retry_on_timeout: false
           spark_python_task:
             python_file: tightening_analysis.py
             source: GIT

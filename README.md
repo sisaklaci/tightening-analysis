@@ -66,6 +66,15 @@ GPU node for Jobs compute: `Standard_NC4as_T4_v3` (1x NVIDIA T4), `15.4.x-gpu-ml
 single-node (`num_workers: 0`, driver only). The policy rejects autoscaling and instance-pool
 settings, so the job cluster definition in `databricks.yml` intentionally has neither.
 
+**Known issue — GPU capacity shortages (Azure North Europe):** per the workspace admin, T4 GPU
+stockouts (`CLOUD_PROVIDER_RESOURCE_STOCKOUT` / `ZonalAllocationFailed`) are a recurring,
+region-wide Azure capacity issue, unrelated to quota or permissions, and not something this
+workspace can route around (no zone/region choice; other T4 sizes share the same hardware pool;
+flexible node types don't apply to GPUs). Availability fluctuates through the day. The task is
+configured to retry automatically (`max_retries: 6`, 15 minutes apart, ~1.5h total) to ride out
+a transient shortage. If T4 keeps failing, the same policy also allows `Standard_NV36ads_A10_v5`
+(1x NVIDIA A10, different hardware pool, but a larger/pricier VM) as a fallback node type.
+
 To create/update it in the workspace:
 
 - **From VS Code** (no CLI needed): Databricks icon in the sidebar → **Deploy** (or run the
