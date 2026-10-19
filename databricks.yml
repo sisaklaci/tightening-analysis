@@ -50,4 +50,4 @@ resources:
       schedule:
         quartz_cron_expression: "0 0 6 * * ?"
         timezone_id: Europe/Budapest
-        pause_status: UNPAUSED
+        pause_status: PAUSED
