@@ -59,12 +59,12 @@ The job itself is defined as code in [databricks.yml](databricks.yml) (`resource
 runs daily at 06:00 Europe/Budapest on a dedicated job cluster, pulling `tightening_analysis.py`
 straight from the `master` branch on GitHub.
 
-Compute is currently pinned to the admin-approved **"Datalab 02 All Purpose Multi Nodes"**
-cluster policy (`policy_id: 0018A91AD9ED973F`, `Standard_D4ds_v5`, autoscaling 1-5 workers,
-CPU only) — the workspace does not allow unrestricted cluster creation, and no GPU policy has
-been approved yet. Since the current script doesn't use a GPU, this is a safe interim setup;
-once an approved GPU cluster policy is confirmed, swap `policy_id`/`node_type_id` in
-`databricks.yml` for it.
+The workspace does not allow unrestricted cluster creation — every cluster must reference an
+admin-approved cluster policy. Compute is pinned to **"Datalab 03 Job Cluster Single Node"**
+(looked up by name via the `gpu_job_policy_id` bundle variable), the only policy that allows a
+GPU node for Jobs compute: `Standard_NC4as_T4_v3` (1x NVIDIA T4), `15.4.x-gpu-ml-scala2.12`,
+single-node (`num_workers: 0`, driver only). The policy rejects autoscaling and instance-pool
+settings, so the job cluster definition in `databricks.yml` intentionally has neither.
 
 To create/update it in the workspace:
 
