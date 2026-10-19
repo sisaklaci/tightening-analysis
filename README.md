@@ -15,8 +15,10 @@ VS Code (edit) → GitHub (version) → Databricks Git Folder (run)
 3. Pull into the Databricks Git Folder (or push directly from VS Code via the
    Databricks extension) and run on a cluster.
 4. Edits made inside Databricks can be committed back to GitHub from the Git dialog there.
-5. For scheduled/production runs, a Lakeflow Job can source the code directly from the
-   GitHub repo — no manual sync needed.
+5. For scheduled/production runs, a Lakeflow Job (`tightening_analysis_job`, defined in
+   [databricks.yml](databricks.yml)) sources `tightening_analysis.py` directly from the
+   GitHub repo on a daily schedule — no manual sync needed. See "Deploy the scheduled job"
+   below.
 
 ## One-time setup
 
@@ -50,6 +52,25 @@ VS Code (edit) → GitHub (version) → Databricks Git Folder (run)
 - Or open the file inside the Databricks Git Folder, attach to the cluster, run cells.
 - For production/scheduled runs: create a **Lakeflow Job** with Source = Git provider,
   pointing at this repo + branch + file path — Databricks pulls the latest commit each run.
+
+## Deploy the scheduled job
+
+The job itself is defined as code in [databricks.yml](databricks.yml) (`resources.jobs.tightening_analysis_job`) —
+runs daily at 06:00 Europe/Budapest on a dedicated job cluster (GPU ML runtime, 1x NVIDIA T4,
+auto-terminates after each run), pulling `tightening_analysis.py` straight from the `master`
+branch on GitHub.
+
+To create/update it in the workspace:
+
+- **From VS Code** (no CLI needed): Databricks icon in the sidebar → **Deploy** (or run the
+  "Databricks: Deploy Bundle" command). This applies whatever is in `databricks.yml` to the
+  `dev` target.
+- **From a terminal with the Databricks CLI installed and configured**: `databricks bundle deploy -t dev`.
+
+After deploying, the job appears under **Workflows** in the Databricks UI as
+`tightening-analysis-daily`, already active on its schedule. To change the schedule, cluster
+size, or runtime version, edit the `resources.jobs` block in `databricks.yml` and redeploy —
+don't edit the job directly in the UI, since the next bundle deploy would overwrite UI changes.
 
 ## Source table — `tightening_zg_view`
 

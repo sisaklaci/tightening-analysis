@@ -1,0 +1,53 @@
+# This is a Declarative Automation Bundle definition for tightening-analysis.
+# The Databricks extension requires databricks.yml configuration file.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+
+bundle:
+  name: tightening-analysis
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-5678659344564033.13.azuredatabricks.net
+
+  ## Optionally, there could be 'staging' or 'prod' targets here.
+  #
+  # prod:
+  #   workspace:
+  #     host: https://adb-5678659344564033.13.azuredatabricks.net
+
+# Scheduled production job: sources the Python file directly from the GitHub
+# repo (no manual sync needed) and runs it daily on a dedicated job cluster.
+resources:
+  jobs:
+    tightening_analysis_job:
+      name: tightening-analysis-daily
+
+      git_source:
+        git_url: https://github.com/sisaklaci/tightening-analysis.git
+        git_provider: gitHub
+        git_branch: master
+
+      job_clusters:
+        - job_cluster_key: analysis_cluster
+          new_cluster:
+            # GPU ML runtime: CUDA/cuDNN + PyTorch/TensorFlow preinstalled, for deep learning.
+            # Standard_NC4as_T4_v3 = 1x NVIDIA T4 GPU (Azure). Bump to NC8as_T4_v3 / NC6s_v3
+            # etc. if more GPU memory or throughput is needed.
+            spark_version: 15.4.x-gpu-ml-scala2.12
+            node_type_id: Standard_NC4as_T4_v3
+            num_workers: 1
+
+      tasks:
+        - task_key: run_analysis
+          job_cluster_key: analysis_cluster
+          spark_python_task:
+            python_file: tightening_analysis.py
+            source: GIT
+
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: Europe/Budapest
+        pause_status: UNPAUSED
