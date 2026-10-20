@@ -2,7 +2,7 @@
 
 df = spark.table("snowflake_db_sl_ee_lab.sl_mfg.tightening_zg_view")
 
-df_filtered = df.filter(
+df_filtered = df.filter( 
     (df.PLANTID == "SG") &
     (df.RESULTDATETIME >= "2026-01-02")
 )
